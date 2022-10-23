@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Scraper from Website URLs</title>
+
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 50%;
+        }
+
+        table th, table td {
+            border: 1px solid #000;
+            padding: 10px;
+        }
+
+        table th {
+            background-color: darkgrey;
+        }
+    </style>
+</head>
+<body>
+
+    <label for="urls">Input URLs list</label>
+    <br>
+    <textarea name="urls" cols="80" rows="10" id="urls"></textarea>
+    <br>
+    <input type="button" value="Extract Emails" class="btn-extract">
+
+    <br>
+    <p>Extracted Emails from given URL</p>
+    <table class="extracted-emails">
+        <tr>
+            <th>URL</th>
+            <th>Emails Found</th>
+        </tr>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.btn-extract').on('click', function() {
+                let textData = $('#urls').val();
+                let listData = textData.split('\n');
+
+                for(var x = 0; x < listData.length; x++) {
+                    $.ajax({
+                        url: "{% url 'scraper:extract_emails' %}",
+                        type: 'GET',
+                        data: {
+                            URLS: listData[x],
+                        },
+                    }).done(function(response) {
+                        var rowTemplate = "<tr><td>URL</td><td>EMAIL</td></tr>";
+
+                        rowTemplate = rowTemplate.replace('URL', response.for_url);
+                        rowTemplate = rowTemplate.replace('EMAIL', response.extracted_emails);
+                        $('.extracted-emails').append(rowTemplate);
+                    })
+                }
+            })
+
+      })
+    </script>
+
+</body>
+</html>
